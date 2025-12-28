@@ -1,0 +1,107 @@
+Project Structure Overview
+Ensure your folders are organized like this:
+
+            smart-pos/
+            ├── docker-compose.yml
+            ├── pos_data/           (Keep this folder, it stores your database)
+            ├── backend/
+            │   ├── Dockerfile
+            │   ├── main.py
+            │   └── requirements.txt
+            └── frontend/
+                ├── Dockerfile
+                ├── package.json
+                ├── package-lock.json
+                └── (other Vite-generated files)
+
+
+
+
+1. The Manager: docker-compose.yml
+(Save in the root smart-pos folder)
+
+          services:
+            # 1. THE DATABASE (PostgreSQL)
+            db:
+              image: pgvector/pgvector:pg16
+              restart: always
+              environment:
+                POSTGRES_USER: admin
+                POSTGRES_PASSWORD: secure_pos_password
+                POSTGRES_DB: pos_db
+              volumes:
+                - ./pos_data:/var/lib/postgresql/data
+
+            # 2. THE BRAIN (Python FastAPI)
+            api:
+              build: ./backend
+              ports:
+                - "8000:8000"
+              volumes:
+                - ./backend:/app
+              environment:
+                DATABASE_URL: "postgresql://admin:secure_pos_password@db:5432/pos_db"
+              depends_on:
+                - db
+
+            # 3. THE FACE (React.js)
+            web:
+              build: ./frontend
+              ports:
+                - "5173:5173"
+              volumes:
+                - ./frontend:/app
+                - /app/node_modules
+              depends_on:
+                - api
+
+
+
+2. The Backend Files (Inside backend/ folder)
+Dockerfile
+
+        FROM python:3.10-slim
+        WORKDIR /app
+        RUN apt-get update && apt-get install -y libpq-dev gcc
+        COPY requirements.txt .
+        RUN pip install --no-cache-dir -r requirements.txt
+        COPY . .
+        CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+requirements.txt
+
+        fastapi
+        uvicorn
+        psycopg2-binary
+        asyncpg
+        pydantic
+
+main.py
+
+        from fastapi import FastAPI
+
+        app = FastAPI()
+
+        @app.get("/")
+        def home():
+            return {"status": "Online", "database": "Connected"}
+
+
+3. The Frontend File (Inside frontend/ folder)
+Dockerfile (Note: We used node:22 to match the new Vite version)
+
+        FROM node:22-alpine
+        WORKDIR /app
+        COPY package.json package-lock.json ./
+        RUN npm install
+        COPY . .
+        EXPOSE 5173
+        CMD ["npm", "run", "dev", "--", "--host"]
+
+
+Summary of Setup Command
+To start the system from scratch with these files:
+
+          1. Open terminal in smart-pos.
+
+          2. Run docker-compose up --build.

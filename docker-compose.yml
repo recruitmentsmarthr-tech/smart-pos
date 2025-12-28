@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # 1. THE DATABASE (PostgreSQL)
+  db:
+    image: pgvector/pgvector:pg16
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secure_pos_password
+      POSTGRES_DB: pos_db
+    volumes:
+      - ./pos_data:/var/lib/postgresql/data
+
+  # 2. THE BRAIN (Python FastAPI)
+  api:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      DATABASE_URL: "postgresql://admin:secure_pos_password@db:5432/pos_db"
+    depends_on:
+      - db
+
+  # 3. THE FACE (React.js)
+  web:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - api
