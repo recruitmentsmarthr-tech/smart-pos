@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, Float, JSON
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext.mutable import MutableList
 from datetime import datetime
 from database import Base
 
@@ -35,10 +36,21 @@ class Stock(Base):
     quantity = Column(Integer, default=0)
     price = Column(Float)  # Selling Price
     cost_price = Column(Float, nullable=True) # Buying Price (for profit calc)
+
+    # Product-level discount fields
+    discount_percent = Column(Float, nullable=True, default=0) # e.g., 20 for 20%
+    discount_start_date = Column(DateTime, nullable=True)
+    discount_end_date = Column(DateTime, nullable=True)
+    
+    # --- THIS IS THE CHANGE ---
+    # Stores a list of file paths like ["uploads/espresso_1.jpg", "uploads/espresso_2.jpg"]
+    images = Column(MutableList.as_mutable(JSON), default=[]) 
     
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=True)
-    arrival_date = Column(DateTime, default=datetime.utcnow) # For tracking age
-    last_sold_at = Column(DateTime, nullable=True) # Updates when sold
+    arrival_date = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_sold_at = Column(DateTime, nullable=True) 
     
     # Relationships
     category = relationship("Category", back_populates="products")
@@ -51,8 +63,13 @@ class Customer(Base):
     name = Column(String)
     phone = Column(String, unique=True, nullable=True)
     email = Column(String, nullable=True)
+    address = Column(String, nullable=True)
+    remark = Column(String, nullable=True)
     points = Column(Integer, default=0) # For loyalty program later
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationship: One customer can have many vouchers
+    vouchers = relationship("Voucher", back_populates="customer")
 
 # 5. VOUCHERS TABLE (The Receipt Header)
 class Voucher(Base):
@@ -61,13 +78,22 @@ class Voucher(Base):
     id = Column(Integer, primary_key=True, index=True)
     voucher_number = Column(String, unique=True, index=True) # E.g., "INV-2025-001"
     total_amount = Column(Float)
+    
+    # Discount fields
+    total_discount = Column(Float, nullable=True, default=0) # The final calculated discount amount
+    discount_percentage = Column(Float, nullable=True, default=0) # e.g., 10 for 10%
+    discount_amount = Column(Float, nullable=True, default=0) # e.g., 5 for a $5 flat discount
+    
     created_at = Column(DateTime, default=datetime.utcnow)
+    delivery_address = Column(String, nullable=True) # For delivery orders
     
     staff_id = Column(Integer, ForeignKey("users.id"))
     customer_id = Column(Integer, ForeignKey("customers.id"), nullable=True)
 
     # Relationship: One voucher has many items
     items = relationship("VoucherItem", back_populates="voucher")
+    # Relationship: A voucher belongs to one customer
+    customer = relationship("Customer", back_populates="vouchers")
 
 # 6. VOUCHER ITEMS TABLE (The items inside the receipt)
 class VoucherItem(Base):

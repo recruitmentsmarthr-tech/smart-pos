@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "../../api";
+import { useDialog } from "~/contexts/DialogContext";
 import { ArrowLeft, Trash2, Edit } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "~/components/ui/button";
@@ -45,36 +46,44 @@ const CategoriesIndex = () => {
 
   useEffect(() => { fetchCategories(); }, []);
 
+  const { showDialog } = useDialog();
+
   const handleCreate = async () => {
     if (!newCat.trim()) {
-      alert("Please type a category name first.");
+      showDialog("Error", "Please type a category name first.");
       return;
     }
     try {
       await api.post("/categories/", { name: newCat });
       setNewCat("");
       fetchCategories();
+      showDialog("Success", "Category created successfully.");
     } catch (err) {
       const detail = err.response?.data?.detail || "Check backend connection";
-      alert(`Error: ${detail}`);
+      showDialog("Error", `Error: ${detail}`);
     }
   };
   
   const handleDelete = async (catId) => {
-    if (window.confirm("Are you sure you want to delete this category?")) {
-      try {
-        await api.delete(`/categories/${catId}`);
-        fetchCategories();
-      } catch (err) {
-        const detail = err.response?.data?.detail || "Failed to delete category.";
-        alert(`Error: ${detail}`);
+    showDialog(
+      "Confirm Deletion",
+      "Are you sure you want to delete this category?",
+      async () => {
+        try {
+          await api.delete(`/categories/${catId}`);
+          fetchCategories();
+          showDialog("Success", "Category deleted successfully.");
+        } catch (err) {
+          const detail = err.response?.data?.detail || "Failed to delete category.";
+          showDialog("Error", `Error: ${detail}`);
+        }
       }
-    }
+    );
   };
   
   const handleUpdate = async () => {
     if (!editingCategory || !editingCategory.name.trim()) {
-      alert("Category name cannot be empty.");
+      showDialog("Error", "Category name cannot be empty.");
       return;
     }
     try {
@@ -82,9 +91,10 @@ const CategoriesIndex = () => {
       setIsEditDialogOpen(false);
       setEditingCategory(null);
       fetchCategories();
+      showDialog("Success", "Category updated successfully.");
     } catch (err) {
       const detail = err.response?.data?.detail || "Failed to update category.";
-      alert(`Error: ${detail}`);
+      showDialog("Error", `Error: ${detail}`);
     }
   };
 

@@ -1,0 +1,247 @@
+
+from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Form, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.staticfiles import StaticFiles
+from sqlalchemy.orm import Session
+from sqlalchemy import func
+from datetime import timedelta, datetime
+from typing import List, Optional
+import os, shutil, json
+
+# Internal imports matching our project structure
+import models, schemas, auth, database, init_db
+
+app = FastAPI(title="Smart POS API")
+
+# ==========================================
+#         1. CORS SETTINGS
+# ==========================================
+origins = ["*"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+if not os.path.exists("static_images"):
+    os.makedirs("static_images")
+app.mount("/static_images", StaticFiles(directory="static_images"), name="static_images")
+
+# ==========================================
+#         2. STARTUP & AUTH SETUP
+# ==========================================
+
+@app.on_event("startup")
+def on_startup():
+    init_db.init_db()
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = auth.jwt.decode(token, auth.SECRET_KEY, algorithms=[auth.ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None: raise credentials_exception
+    except auth.JWTError:
+        raise credentials_exception
+        
+    user = db.query(models.User).filter(models.User.username == username).first()
+    if user is None: raise credentials_exception
+    return user
+
+# ==========================================
+#         3. LOGIN & USER ROUTES
+# ==========================================
+
+@app.post("/login", response_model=schemas.Token)
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
+    user = db.query(models.User).filter(models.User.username == form_data.username).first()
+    if not user or not auth.verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Incorrect credentials")
+    
+    access_token = auth.create_access_token(data={"sub": user.username, "role": user.role})
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@app.get("/users/me", response_model=schemas.UserOut)
+def read_users_me(current_user: models.User = Depends(get_current_user)):
+    return current_user
+
+# ==========================================
+#      4. SMART STOCK CREATE (WITH PICS)
+# ==========================================
+
+@app.post("/stock/")
+async def create_stock_item(
+    name: str = Form(...),
+    price: float = Form(...),
+    cost_price: float = Form(None),
+    quantity: int = Form(...),
+    category_id: int = Form(None),
+    description: str = Form(None),
+    files: List[UploadFile] = File(...),
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    if current_user.role not in ["manager", "staff"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    saved_paths = []
+    for file in files:
+        file_path = f"static_images/{file.filename}"
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        saved_paths.append(file_path)
+
+    new_stock = models.Stock(
+        name=name,
+        price=price,
+        cost_price=cost_price,
+        quantity=quantity,
+        category_id=category_id,
+        description=description,
+        images=saved_paths
+    )
+    db.add(new_stock)
+    db.commit()
+    db.refresh(new_stock)
+
+    audit = models.AuditLog(
+        action="CREATE_STOCK",
+        table_name="stock",
+        record_id=new_stock.id,
+        new_value=json.dumps({"name": name, "qty": quantity}),
+        user_id=current_user.id
+    )
+    db.add(audit)
+    db.commit()
+    return new_stock
+
+# ==========================================
+#      5. ADVANCED STOCK RETRIEVAL
+# ==========================================
+
+@app.get("/stock/", response_model=schemas.StockPaginationResponse)
+def get_stock_inventory(
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1),
+    sort_by: str = Query("id"),
+    sort_order: str = Query("desc"),
+    name: Optional[str] = None,
+    category: Optional[str] = None,
+    price_max: Optional[float] = None,
+    date_start: Optional[str] = None, 
+    date_end: Optional[str] = None,
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    # 1. Calculate "Total Quantity Sold" per product via subquery
+    sales_sub = db.query(
+        models.VoucherItem.product_id,
+        func.sum(models.VoucherItem.quantity).label("total_sold")
+    ).group_by(models.VoucherItem.product_id).subquery()
+
+    # 2. Base Query
+    query = db.query(
+        models.Stock,
+        func.coalesce(sales_sub.c.total_sold, 0).label("total_sold")
+    ).outerjoin(sales_sub, models.Stock.id == sales_sub.c.product_id)\
+     .outerjoin(models.Category, models.Stock.category_id == models.Category.id)
+
+    # 3. Filters
+    if name:
+        query = query.filter(models.Stock.name.ilike(f"%{name}%"))
+    if category and category != "ALL":
+        query = query.filter(models.Category.name == category)
+    if price_max:
+        query = query.filter(models.Stock.price <= price_max)
+        
+    if date_start and date_end:
+        try:
+            start_dt = datetime.strptime(date_start, "%Y-%m-%d")
+            end_dt = datetime.strptime(f"{date_end} 23:59:59", "%Y-%m-%d %H:%M:%S")
+            query = query.filter(models.Stock.arrival_date.between(start_dt, end_dt))
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Use YYYY-MM-DD")
+
+    # 4. DYNAMIC SORTING ENGINE
+    if sort_by == "total_sold":
+        sort_attr = func.coalesce(sales_sub.c.total_sold, 0)
+    elif hasattr(models.Stock, sort_by):
+        sort_attr = getattr(models.Stock, sort_by)
+    else:
+        sort_attr = models.Stock.id  # Neutral Fallback
+
+    if sort_order == "desc":
+        query = query.order_by(sort_attr.desc())
+    else:
+        query = query.order_by(sort_attr.asc())
+
+    # 5. EXECUTION
+    total_count = query.count()
+    offset = (page - 1) * limit
+    results = query.offset(offset).limit(limit).all()
+
+    items = []
+    for stock_obj, total_sold in results:
+        stock_obj.total_sold = int(total_sold)
+        items.append(stock_obj)
+
+    return {
+        "items": items,
+        "total": total_count,
+        "page": page,
+        "size": limit
+    }
+
+
+# ==========================================
+#      CATEGORY MANAGEMENT (FINAL)
+# ==========================================
+
+@app.post("/categories/", response_model=schemas.CategoryOut)
+def create_category(
+    category: schemas.CategoryCreate, 
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    # Check for duplicates so you don't get 5 "COFFEE" categories
+    existing = db.query(models.Category).filter(models.Category.name == category.name.upper()).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Category already registered")
+        
+    db_cat = models.Category(name=category.name.upper())
+    db.add(db_cat)
+    db.commit()
+    db.refresh(db_cat)
+    return db_cat
+
+@app.get("/categories/", response_model=List[schemas.CategoryOut])
+def get_categories(db: Session = Depends(database.get_db)):
+    return db.query(models.Category).all()
+
+@app.delete("/categories/{cat_id}")
+def delete_category(
+    cat_id: int, 
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    db_cat = db.query(models.Category).filter(models.Category.id == cat_id).first()
+    if not db_cat:
+        raise HTTPException(status_code=404, detail="Category not found")
+    
+    # Check if any stock items are still using this category
+    has_products = db.query(models.Stock).filter(models.Stock.category_id == cat_id).first()
+    if has_products:
+        raise HTTPException(status_code=400, detail="Cannot delete category: Items are still linked to it")
+
+    db.delete(db_cat)
+    db.commit()
+    return {"detail": "Category purged successfully"}

@@ -111,12 +111,17 @@ const ProductCard = React.memo(({ product, onAddToCart }) => {
     <button 
       key={product.id} 
       onClick={(e) => { e.stopPropagation(); onAddToCart(product); }} 
-      className={`${currentThemeClasses} border p-0 rounded-lg shadow-sm active:scale-95 group`} // Keep p-0 for image to touch edge
+      className={`${currentThemeClasses} border p-0 rounded-lg shadow-sm active:scale-95 group relative`} // Add relative for badge positioning
       onMouseEnter={() => setIsHovered(true)} // Reintroduce hover for carousel
       onMouseLeave={() => setIsHovered(false)} // Reintroduce hover for carousel
     >
       <div className="relative w-full h-28 rounded-t-lg overflow-hidden"> {/* Reduced image height to h-28 */}
         {imageContent}
+        {product.is_on_sale && (
+          <div className="absolute top-0 left-0 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-br-lg">
+            SALE
+          </div>
+        )}
       </div>
 
       <div className="p-3 text-left"> {/* Reduced padding to p-3 */}
@@ -131,9 +136,32 @@ const ProductCard = React.memo(({ product, onAddToCart }) => {
         </p>
 
         <div className="flex items-baseline justify-between">
-          <span className="text-lg font-bold text-gray-900">${product.price.toFixed(2)}</span> {/* Adjusted text size to lg */}
-          {/* Removed "/ Portion" */}
+          {product.is_on_sale ? (
+            <div>
+              <span className="text-lg font-bold text-red-600">${product.sale_price.toFixed(2)}</span>
+              <span className="text-sm text-gray-500 line-through ml-2">${product.price.toFixed(2)}</span>
+            </div>
+          ) : (
+            <span className="text-lg font-bold text-gray-900">${product.price.toFixed(2)}</span>
+          )}
         </div>
+        <p className="text-xs text-gray-400 mt-1 h-4"> {/* Reserve space for alignment */}
+          {product.is_on_sale && (() => {
+            const startDate = product.discount_start_date ? new Date(product.discount_start_date).toLocaleDateString() : null;
+            const endDate = product.discount_end_date ? new Date(product.discount_end_date).toLocaleDateString() : null;
+            let dateText = "";
+            if (startDate && endDate) {
+                dateText = `Sale: ${startDate} - ${endDate}`;
+            } else if (startDate) {
+                dateText = `Sale starts: ${startDate}`;
+            } else if (endDate) {
+                dateText = `Sale ends: ${endDate}`;
+            } else {
+                dateText = `Sale: Active`;
+            }
+            return dateText;
+          })()}
+        </p>
       </div>
     </button>
   );

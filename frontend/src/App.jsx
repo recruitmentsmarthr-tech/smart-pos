@@ -1,12 +1,18 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { DialogProvider } from '~/contexts/DialogContext';
 import MainLayout from './pages/MainLayout';
 import Dashboard from './pages/Dashboard';
 import Inventory from './pages/Inventory/index';
 import AddStock from './pages/Inventory/AddStock';
 import EditStock from './pages/Inventory/EditStock';
 import Categories from './pages/Categories/index';
-import VoucherGeneration from './pages/VoucherGeneration'; // NEW IMPORT
+import VoucherGeneration from './pages/VoucherGeneration';
+import VoucherManagement from './pages/VoucherManagement';
+import VoucherDetails from './pages/VoucherManagement/VoucherDetails';
+import CustomerManagement from './pages/Customers/index';
+import CreateCustomer from './pages/Customers/CreateCustomer';
+import EditCustomer from './pages/Customers/EditCustomer';
 import Login from './pages/Login';
 
 // THE SECURITY GATE
@@ -46,25 +52,32 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        
-        {/* PROTECTED AREA */}
-        <Route element={
-          <ProtectedRoute>
-            <MainLayout theme={theme} cycleTheme={cycleTheme} user={{username: "ADMIN"}} />
-          </ProtectedRoute>
-        }>
-          <Route path="/dashboard" element={<Dashboard theme={theme} products={products} />} />
-          <Route path="/inventory" element={<Inventory theme={theme} />} />
-          <Route path="/inventory/add" element={<AddStock />} />
-          <Route path="/inventory/edit/:id" element={<EditStock />} />
+      <DialogProvider>
+        <Routes>
+          <Route path="/" element={<Login />} />
           
-          {/* 2. NEW ROUTE ADDED HERE */}
-          <Route path="/categories" element={<Categories theme={theme} />} /> 
-          <Route path="/voucher-generation" element={<VoucherGeneration />} />
-        </Route>
-      </Routes>
+          {/* PROTECTED AREA */}
+          <Route element={
+            <ProtectedRoute>
+              <MainLayout theme={theme} cycleTheme={cycleTheme} user={{username: "ADMIN"}} />
+            </ProtectedRoute>
+          }>
+            <Route path="/dashboard" element={<Dashboard theme={theme} products={products} />} />
+            <Route path="/inventory" element={<Inventory theme={theme} />} />
+            <Route path="/inventory/add" element={<AddStock />} />
+            <Route path="/inventory/edit/:id" element={<EditStock />} />
+            
+            {/* 2. NEW ROUTE ADDED HERE */}
+            <Route path="/categories" element={<Categories theme={theme} />} /> 
+            <Route path="/voucher-generation" element={<VoucherGeneration />} />
+            <Route path="/vouchers" element={<VoucherManagement />} />
+            <Route path="/vouchers/:id" element={<VoucherDetails />} />
+            <Route path="/customers" element={<CustomerManagement />} />
+            <Route path="/customers/new" element={<CreateCustomer />} />
+            <Route path="/customers/edit/:id" element={<EditCustomer />} />
+          </Route>
+        </Routes>
+      </DialogProvider>
     </BrowserRouter>
   );
 }

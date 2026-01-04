@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import api from "../../api";
+import { useDialog } from "~/contexts/DialogContext";
 import { Upload, X, Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -19,10 +20,9 @@ const StockForm = ({ onSuccess, onCancel, isEditMode = false, item = null }) => 
   const [imagesToDelete, setImagesToDelete] = useState([]); // Stores relative paths of images to delete
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
-    name: "", price: "", cost_price: "", quantity: "", category_id: "", description: "", arrival_date: ""
+    name: "", price: "", cost_price: "", quantity: "", category_id: "", description: "", arrival_date: "",
+    discount_percent: "", discount_start_date: "", discount_end_date: ""
   });
-  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     api.get("/categories/").then(res => setCategories(res.data)).catch(console.error);
@@ -37,7 +37,10 @@ const StockForm = ({ onSuccess, onCancel, isEditMode = false, item = null }) => 
         quantity: item.quantity || "",
         category_id: item.category?.id || "",
         description: item.description || "",
-        arrival_date: item.arrival_date ? new Date(item.arrival_date).toISOString().split('T')[0] : ""
+        arrival_date: item.arrival_date ? new Date(item.arrival_date).toISOString().split('T')[0] : "",
+        discount_percent: item.discount_percent || "",
+        discount_start_date: item.discount_start_date ? new Date(item.discount_start_date).toISOString().split('T')[0] : "",
+        discount_end_date: item.discount_end_date ? new Date(item.discount_end_date).toISOString().split('T')[0] : ""
       });
       if (item.images) {
         setExistingImagePreviews(item.images.map(img => ({ src: `http://localhost:8000/${img}` })));
@@ -86,9 +89,11 @@ const StockForm = ({ onSuccess, onCancel, isEditMode = false, item = null }) => 
     setSelectedFiles([]);
   };
 
+  const { showDialog } = useDialog();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.category_id) return alert("Please select a category.");
+    if (!formData.category_id) return showDialog("Warning", "Please select a category.");
     setLoading(true);
 
     const data = new FormData();
@@ -101,6 +106,13 @@ const StockForm = ({ onSuccess, onCancel, isEditMode = false, item = null }) => 
     if (formData.arrival_date) {
         data.append('arrival_date', new Date(formData.arrival_date).toISOString());
     }
+    data.append('discount_percent', formData.discount_percent || 0);
+    if (formData.discount_start_date) {
+        data.append('discount_start_date', new Date(formData.discount_start_date).toISOString());
+    }
+    if (formData.discount_end_date) {
+        data.append('discount_end_date', new Date(formData.discount_end_date).toISOString());
+    }
 
     try {
         let response;
@@ -110,9 +122,11 @@ const StockForm = ({ onSuccess, onCancel, isEditMode = false, item = null }) => 
             response = await api.put(`/stock/${item.id}`, data, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
+            showDialog("Success", "Item updated successfully.");
         } else {
             selectedFiles.forEach(preview => data.append("files", preview.file));
             response = await api.post("/stock/", data);
+            showDialog("Success", "Item created successfully.");
         }
         onSuccess(response.data);
         setImagesToDelete([]);
@@ -120,8 +134,7 @@ const StockForm = ({ onSuccess, onCancel, isEditMode = false, item = null }) => 
     } catch (err) {
         console.error(err);
         const serverMsg = err.response?.data?.detail || `Failed to ${isEditMode ? 'update' : 'create'} stock item.`;
-        setErrorMessage(serverMsg);
-        setErrorDialogOpen(true);
+        showDialog("Error", serverMsg);
     } finally {
         setLoading(false);
     }
@@ -149,6 +162,26 @@ const StockForm = ({ onSuccess, onCancel, isEditMode = false, item = null }) => 
             <Label htmlFor="cost_price">Cost Price (Optional)</Label>
             <Input id="cost_price" name="cost_price" type="number" step="0.01" value={formData.cost_price} onChange={handleChange} />
           </div>
+        </div>
+        <div className="p-2 border rounded-md mt-2">
+            <h3 className="text-sm font-medium mb-2">Product Discount (Optional)</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="space-y-1">
+                    <Label htmlFor="discount_percent">Discount (%)</Label>
+                    <Input id="discount_percent" name="discount_percent" type="number" step="0.01" value={formData.discount_percent} onChange={handleChange} />
+                </div>
+                <div className="space-y-1">
+                    {/* Placeholder for a potential toggle or more complex logic */}
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="discount_start_date">Discount Start</Label>
+                    <Input id="discount_start_date" name="discount_start_date" type="date" value={formData.discount_start_date} onChange={handleChange} />
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="discount_end_date">Discount End</Label>
+                    <Input id="discount_end_date" name="discount_end_date" type="date" value={formData.discount_end_date} onChange={handleChange} />
+                </div>
+            </div>
         </div>
         <div className="space-y-1">
           <Label>Category</Label>
@@ -260,19 +293,6 @@ const StockForm = ({ onSuccess, onCancel, isEditMode = false, item = null }) => 
           </Button>
         </div>
       </form>
-      <Dialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Error</DialogTitle>
-            <DialogDescription>
-              {errorMessage}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button onClick={() => setErrorDialogOpen(false)}>OK</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 };

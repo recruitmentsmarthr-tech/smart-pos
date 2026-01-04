@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import api from "../../api";
+import { useDialog } from "~/contexts/DialogContext";
 import { Plus, Edit2, Trash2, Search, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, Layers, Loader2 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "~/components/ui/button";
@@ -102,16 +103,22 @@ const InventoryIndex = () => {
 
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
+  const { showDialog } = useDialog();
   const handleDelete = async (stockId) => {
-    if (window.confirm("Are you sure you want to delete this item?")) {
-      try {
-        await api.delete(`/stock/${stockId}`);
-        fetchProducts();
-      } catch (err) {
-        const detail = err.response?.data?.detail || "Failed to delete item.";
-        alert(`Error: ${detail}`);
+    showDialog(
+      "Confirm Deletion",
+      "Are you sure you want to delete this item?",
+      async () => {
+        try {
+          await api.delete(`/stock/${stockId}`);
+          showDialog("Success", "Item deleted successfully.");
+          fetchProducts();
+        } catch (err) {
+          const detail = err.response?.data?.detail || "Failed to delete item.";
+          showDialog("Error", `Error: ${detail}`);
+        }
       }
-    }
+    );
   };
 
   const handleSort = (field) => {
@@ -170,6 +177,7 @@ const InventoryIndex = () => {
                   <TableHead onClick={() => handleSort("price")} className="cursor-pointer text-xs sm:text-sm">
                     <div className="flex items-center">Sell Price {renderSortArrow("price")}</div>
                   </TableHead>
+                  <TableHead className="text-xs sm:text-sm">Sale Status</TableHead>
                   <TableHead onClick={() => handleSort("cost_price")} className="cursor-pointer text-xs sm:text-sm">
                     <div className="flex items-center">Buy Price {renderSortArrow("cost_price")}</div>
                   </TableHead>
@@ -194,7 +202,7 @@ const InventoryIndex = () => {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan="10" className="h-24 text-center">
+                    <TableCell colSpan="11" className="h-24 text-center">
                       <Loader2 className="animate-spin text-primary mx-auto" size={24} />
                     </TableCell>
                   </TableRow>
@@ -203,6 +211,15 @@ const InventoryIndex = () => {
                     <TableCell className="font-medium text-xs sm:text-sm">{item.name || "N/A"}</TableCell>
                     <TableCell className="text-xs sm:text-sm">{item.category?.name || 'N/A'}</TableCell>
                     <TableCell className="text-xs sm:text-sm">${item.price ? Number(item.price).toFixed(2) : "0.00"}</TableCell>
+                    <TableCell className="text-xs sm:text-sm">
+                      {item.is_on_sale ? (
+                        <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
+                          {item.discount_percent}% OFF
+                        </span>
+                      ) : (
+                        "N/A"
+                      )}
+                    </TableCell>
                     <TableCell className="text-xs sm:text-sm">${item.cost_price ? Number(item.cost_price).toFixed(2) : "0.00"}</TableCell>
                     <TableCell className="text-xs sm:text-sm">{item.quantity ?? 0}</TableCell>
                     <TableCell className="text-xs sm:text-sm">{item.total_sold ?? 0}</TableCell>

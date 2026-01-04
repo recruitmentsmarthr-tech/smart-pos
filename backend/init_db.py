@@ -7,12 +7,13 @@ import auth
 
 def init_db():
     # RETRY LOGIC: Try to connect 5 times before giving up
+    # Essential for Docker-Compose where the API might start faster than the DB
     retries = 5
     while retries > 0:
         try:
             print("🔄 Attempting to connect to Database...")
             
-            # 1. Create all tables in the database
+            # 1. Create all tables in the database (Users, Stock, AuditLogs, etc.)
             Base.metadata.create_all(bind=engine)
             
             # 2. Check if we need to create the First Manager
@@ -26,7 +27,7 @@ def init_db():
                         username="admin",
                         full_name="System Manager",
                         role="manager",
-                        hashed_password=auth.get_password_hash("admin123")
+                        hashed_password=auth.get_password_hash("admin123") # <--- YOUR PASSWORD
                     )
                     db.add(admin_user)
                     db.commit()

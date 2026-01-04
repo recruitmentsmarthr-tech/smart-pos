@@ -1,0 +1,20 @@
+To fetch data from the API for testing purposes, you need to authenticate by obtaining an access token and including it in your requests.
+
+Here's how to do it:
+
+**Step 1: Obtain an Access Token**
+Send a POST request to the /login endpoint with the admin username and password.
+
+Command (copy and paste this into your terminal):
+curl -X POST "http://localhost:8000/login" -H "Content-Type: application/x-www-form-urlencoded" -d "username=admin&password=admin123"
+
+This will return a JSON object with an 'access_token' (a long string) and 'token_type' (usually 'bearer').
+Make sure to copy the 'access_token' value.
+
+**Step 2: Use the Access Token for Authenticated Requests**
+Include the 'access_token' in the 'Authorization' header of your subsequent requests as a Bearer token.
+
+Command (replace YOUR_ACCESS_TOKEN with the token you copied from Step 1):
+curl -X GET "http://localhost:8000/stock/" -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+
+This will allow you to make authenticated requests to the /stock/ endpoint (and other protected endpoints).

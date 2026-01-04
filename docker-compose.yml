@@ -6,11 +6,13 @@ services:
     image: pgvector/pgvector:pg16
     restart: always
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: secure_pos_password
-      POSTGRES_DB: pos_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - ./pos_data:/var/lib/postgresql/data
+    env_file:
+      - ./.env
 
   # 2. THE BRAIN (Python FastAPI)
   api:
@@ -20,15 +22,17 @@ services:
     volumes:
       - ./backend:/app
     environment:
-      DATABASE_URL: "postgresql://admin:secure_pos_password@db:5432/pos_db"
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}"
     depends_on:
       - db
+    env_file:
+      - ./.env
 
   # 3. THE FACE (React.js)
   web:
     build: ./frontend
     ports:
-      - "5173:5173"
+      - "3000:3000"
     volumes:
       - ./frontend:/app
       - /app/node_modules

@@ -23,6 +23,14 @@ const MainLayout = ({ theme, cycleTheme, user }) => {
             onClick={() => navigate('/voucher-generation')} 
             className={`text-xl ${location.pathname.includes('/voucher-generation') ? 'text-foreground' : ''}`}
           >🎁</button> {/* NEW BUTTON */}
+          <button 
+            onClick={() => navigate('/vouchers')} 
+            className={`text-xl ${location.pathname.includes('/vouchers') ? 'text-foreground' : ''}`}
+          >🧾</button>
+          <button 
+            onClick={() => navigate('/customers')} 
+            className={`text-xl ${location.pathname.includes('/customers') ? 'text-foreground' : ''}`}
+          >👥</button>
           <button onClick={cycleTheme} className="text-xl">☀️</button>
         </nav>
         <button onClick={() => { localStorage.removeItem('token'); navigate('/'); }} className="text-destructive/60 text-[10px] font-bold">EXIT</button>
