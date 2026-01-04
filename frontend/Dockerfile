@@ -6,6 +6,8 @@ COPY package.json package-lock.json ./
 RUN npm install
 RUN npm install -g serve
 COPY . .
-RUN VITE_API_BASE_URL=$VITE_API_BASE_URL npm run build
+RUN echo "VITE_API_BASE_URL=${VITE_API_BASE_URL}" > .env.production
+RUN cat .env.production
+RUN npm run build
 EXPOSE 3000
 CMD serve -s dist -l 3000
