@@ -1,0 +1,19 @@
+I have identified and fixed the issue with the frontend build.
+
+### Problem
+
+The `VITE_API_BASE_URL` environment variable was not being correctly embedded into the frontend's static files during the Docker build process. This caused the frontend to make API calls to `http://localhost:8000` instead of the production API URL.
+
+### Solution
+
+I have modified `frontend/Dockerfile` to explicitly pass the `VITE_API_BASE_URL` to the `npm run build` command. This ensures that the Vite build process has access to the correct API URL.
+
+### Next Steps
+
+You need to apply this change and rebuild your Docker containers. Please run the following command on your server:
+
+```bash
+docker compose up -d --build --no-cache
+```
+
+This will rebuild the frontend container with the fix and should resolve the `net::ERR_CONNECTION_REFUSED` error in the browser. After the build is complete, please verify that the login functionality is working as expected.

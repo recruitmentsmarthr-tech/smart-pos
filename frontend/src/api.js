@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // 1. Create the connection to your API
 const api = axios.create({
-  baseURL: 'http://localhost:8000', 
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000', 
 });
 
 // 2. The Security Interceptor
