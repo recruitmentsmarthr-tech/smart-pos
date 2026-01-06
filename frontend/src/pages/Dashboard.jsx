@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../api';
+import api from '../api';
 
 const Dashboard = ({ theme }) => {
   const [stats, setStats] = useState(null);
