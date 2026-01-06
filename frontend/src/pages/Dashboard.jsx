@@ -25,15 +25,18 @@ const Dashboard = ({ theme }) => {
   const accentColor = theme === 'midnight' ? 'text-sky-400' :
                       theme === 'slate' ? 'text-emerald-400' : 'text-indigo-600';
 
+  const textColor = theme === 'midnight' || theme === 'slate' ? 'text-white/90' : 'text-slate-800';
+  const subtextColor = theme === 'midnight' || theme === 'slate' ? 'text-white/60' : 'text-slate-500';
+
   const StatCard = ({ title, value }) => (
     <div className={`${currentTheme} border p-6 shadow-sm rounded-lg`}>
-      <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider">{title}</h3>
+      <h3 className={`text-sm font-medium ${subtextColor} uppercase tracking-wider`}>{title}</h3>
       <p className={`text-3xl font-bold mt-2 ${accentColor}`}>{value}</p>
     </div>
   );
 
   return (
-    <div className="h-full w-full overflow-y-auto p-6 scrollbar-hide">
+    <div className={`h-full w-full overflow-y-auto p-6 scrollbar-hide ${textColor}`}>
         <h1 className="text-2xl font-bold mb-6">System Dashboard</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
             {loading || !stats ? (
@@ -55,7 +58,7 @@ const Dashboard = ({ theme }) => {
         {/* Placeholder for future charts and data visualizations */}
         <div className={`${currentTheme} border p-6 shadow-sm rounded-lg mt-6 h-96`}>
           <h2 className="text-lg font-semibold">Sales Trend</h2>
-          <div className="flex items-center justify-center h-full text-white/40">
+          <div className={`flex items-center justify-center h-full ${subtextColor}`}>
             Chart placeholder
           </div>
         </div>
