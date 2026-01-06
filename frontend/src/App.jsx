@@ -25,7 +25,7 @@ const ProtectedRoute = ({ children }) => {
 function App() {
   const [theme, setTheme] = useState(() => {
     const savedTheme = localStorage.getItem('theme');
-    return savedTheme || 'midnight';
+    return savedTheme || 'light';
   });
 
   useEffect(() => {
