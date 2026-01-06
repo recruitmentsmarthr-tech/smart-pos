@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
 import init_db
-from routers import stock, categories, auth_routes, vouchers, customers
+from routers import stock, categories, auth_routes, vouchers, customers, dashboard
 
 app = FastAPI(title="Smart POS API")
 
@@ -37,3 +37,4 @@ app.include_router(stock.router)
 app.include_router(categories.router)
 app.include_router(vouchers.router)
 app.include_router(customers.router)
+app.include_router(dashboard.router)
