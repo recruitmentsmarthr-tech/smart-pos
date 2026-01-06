@@ -1,0 +1,71 @@
+# Deployment Summary for Smart-POS Application
+
+This document outlines the step-by-step process undertaken to deploy a full-stack, Dockerized application (React Frontend, Python/FastAPI Backend, PostgreSQL DB) to a cloud server, along with a log of all troubleshooting steps.
+
+## 1. High-Level Objective
+
+Deploy the application from a Git repository to a Vultr cloud server (1vCPU, 1GB RAM) and make it accessible via a public domain with HTTPS.
+
+## 2. Core Deployment Plan
+
+1.  **Prepare for Production:** Modify application code to use environment variables instead of hardcoded values.
+2.  **Server Setup:** Install necessary server software (Docker, Caddy).
+3.  **DNS & Firewall:** Configure DNS records and firewall rules.
+4.  **Deploy:** Clone the repository and run the application using Docker Compose.
+5.  **Reverse Proxy:** Configure Caddy to manage traffic and HTTPS.
+
+---
+
+## 3. Detailed Chronology & Troubleshooting Log
+
+### Step 1: Preparation for Production
+
+*   **Action:** Modified `frontend/src/api.js` to use `import.meta.env.VITE_API_BASE_URL` for the API endpoint, with a fallback to `http://localhost:8000`.
+*   **Action:** Created a `.env` file in the project root to store secrets (database credentials, JWT secret). Added this file to `.gitignore`.
+*   **Action:** Modified `docker-compose.yml` to read credentials from the `.env` file instead of having them hardcoded.
+*   **Action:** Modified `backend/auth.py` to read JWT configuration from environment variables.
+
+### Step 2: Server Setup
+
+*   **Action:** On the Vultr server, installed `git`, `docker`, `docker-compose-plugin`, and `caddy`.
+
+### Step 3: DNS & Firewall Configuration
+
+*   **Action:** Set up DuckDNS to point `smart-pos.duckdns.org` and `api-smart-pos.duckdns.org` (originally `api.smart-pos`, corrected to `api-smart-pos` due to DuckDNS limitations) to the server's IP address.
+*   **Action:** Configured the server's local firewall (`ufw`) to allow traffic on ports 22 (SSH), 80 (HTTP), and 443 (HTTPS).
+
+### Step 4: Application Deployment & Troubleshooting
+
+*   **Action:** Cloned the Git repository to the server.
+*   **Action:** Created the `.env` file on the server with production/UAT values, including setting `VITE_API_BASE_URL=https://api-smart-pos.duckdns.org`.
+*   **Action:** Ran `docker compose up -d --build`.
+*   **Problem #1:** The `db` (PostgreSQL) container was stuck in a restart loop.
+*   **Diagnosis #1:** Logs showed `FATAL: could not open directory "pg_notify"`, indicating a corrupted data volume.
+*   **Solution #1:** Stopped Docker (`docker compose down`), deleted the corrupted volume (`sudo rm -rf ./pos_data`), and restarted. **This was successful.**
+
+### Step 5: Caddy Reverse Proxy & Troubleshooting
+
+*   **Action:** Created `/etc/caddy/Caddyfile` to reverse proxy requests to the containers.
+*   **Problem #2:** Accessing the domain resulted in `ERR_TIMED_OUT`.
+*   **Diagnosis #2:** Caddy logs showed it was failing the SSL certificate challenge (`challenge failed`). This, combined with the timeout, indicated an external firewall was blocking traffic.
+*   **Solution #2:** User configured the Vultr network-level firewall to allow inbound traffic on ports 80 and 443. **This was successful.**
+*   **Problem #3:** The error changed to `HTTP ERROR 502 Bad Gateway`.
+*   **Diagnosis #3:** Caddy (running on the host) could not resolve the Docker-internal container names (`web`, `api`).
+*   **Solution #3:** Modified `Caddyfile` to proxy to `localhost:5173` and `localhost:8000`, which are the ports exposed to the host by Docker. **This was successful.**
+
+### Step 6: Frontend Build & Final Troubleshooting
+
+*   **Problem #4:** The error changed to `Blocked request. This host is not allowed.` from the frontend.
+*   **Diagnosis #4:** The frontend container was running a Vite development server, which is not suitable for production and has host restrictions.
+*   **Solution #4:** Modified `frontend/Dockerfile` to perform a production build (`npm run build`) and serve the resulting static files using the `serve` package on port `3000`. Updated `docker-compose.yml` and `Caddyfile` to use the new port `3000`.
+*   **Problem #5:** Git conflicts and `Dockerfile` syntax errors (`invalid containerPort: #`).
+*   **Diagnosis #5:** A series of mistakes on my part involving faulty `git replace` commands and incorrect local file versions led to pushing a faulty `Dockerfile` to the repository multiple times. This was compounded by `git pull` conflicts on the server.
+*   **Solution #5:** After several failed attempts, the `Dockerfile` was fixed by overwriting it entirely with a known-good version. The Git conflicts were resolved by using `git fetch origin && git reset --hard origin/main` on the server to force a sync.
+*   **Problem #6 (Current Issue):** After a successful build, the login page loads, but attempting to log in results in a browser console error: `POST http://localhost:8000/login net::ERR_CONNECTION_REFUSED`.
+*   **Diagnosis #6:** The frontend code was built with the wrong API URL. The `VITE_API_BASE_URL` environment variable, despite being present on the host, was not passed into the Docker build environment. The code fell back to its default (`localhost:8000`).
+*   **Solution #6 (Attempted):**
+    1.  Modified `frontend/Dockerfile` to accept a build-time argument (`ARG VITE_API_BASE_URL` and `ENV ...`).
+    2.  Modified `docker-compose.yml` to pass this argument during the build (`build: args: ...`).
+    3.  Pushed changes to Git and had the user sync and rebuild on the server.
+*   **Final Status:** The `localhost:8000` error persists, even after forcing a complete, non-cached rebuild (`--no-cache`). The root cause remains that the `VITE_API_BASE_URL` variable is not being correctly embedded into the static frontend files during the `npm run build` step inside the Docker container.
+---

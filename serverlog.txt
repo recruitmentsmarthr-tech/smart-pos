@@ -1,0 +1,174 @@
+oot@smart-pos-uat:~/smart-pos# docker compose logs db
+WARN[0000] /root/smart-pos/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion
+db-1  |
+db-1  | PostgreSQL Database directory appears to contain a database; Skipping initialization
+db-1  |
+db-1  | 2026-01-04 20:16:02.575 UTC [1] LOG:  starting PostgreSQL 16.11 (Debian 16.11-1.pgdg12+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit
+db-1  | 2026-01-04 20:16:02.576 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+db-1  | 2026-01-04 20:16:02.576 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+db-1  | 2026-01-04 20:16:02.578 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+db-1  | 2026-01-04 20:16:02.590 UTC [28] LOG:  database system was shut down at 2026-01-04 20:15:48 UTC
+db-1  | 2026-01-04 20:16:02.616 UTC [1] LOG:  database system is ready to accept connections
+db-1  | 2026-01-04 20:16:06.616 UTC [32] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 20:16:06.616 UTC [32] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 20:16:11.640 UTC [33] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 20:16:11.640 UTC [33] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 20:16:16.662 UTC [34] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 20:16:16.662 UTC [34] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 20:16:21.689 UTC [35] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 20:16:21.689 UTC [35] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 20:16:26.709 UTC [36] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 20:16:26.709 UTC [36] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 20:21:02.681 UTC [26] LOG:  checkpoint starting: time
+db-1  | 2026-01-04 20:21:02.689 UTC [26] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.003 s, sync=0.001 s, total=0.008 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB; lsn=0/1D04308, redo lsn=0/1D042D0
+db-1  | 2026-01-04 20:22:26.984 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:23:27.012 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:24:27.059 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:25:27.107 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:26:27.154 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:27:27.171 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:28:27.251 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:29:25.493 UTC [37] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 20:29:25.493 UTC [37] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 20:29:30.502 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:29:30.514 UTC [38] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 20:29:30.514 UTC [38] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 20:29:35.533 UTC [39] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 20:29:35.533 UTC [39] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 20:29:40.553 UTC [40] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 20:29:40.553 UTC [40] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 20:29:45.569 UTC [41] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 20:29:45.569 UTC [41] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 20:30:45.617 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:31:45.667 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:32:45.710 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:33:45.752 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:34:45.815 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:35:45.874 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:36:45.891 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:37:45.946 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:38:45.984 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:39:45.987 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:40:46.041 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:41:46.062 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:42:46.108 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:43:46.159 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:44:46.220 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:45:46.251 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:46:46.298 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:47:46.340 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:48:46.395 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:49:46.451 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:50:46.484 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:51:46.564 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:52:46.595 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:53:46.641 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:54:46.676 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:55:46.732 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:56:46.742 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:57:46.802 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:58:46.835 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 20:59:46.883 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:00:46.939 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:01:46.974 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:02:46.984 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:03:47.041 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:04:47.059 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:05:47.119 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:06:47.128 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:07:47.167 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:08:47.180 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:09:47.227 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:10:47.240 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:11:47.251 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:12:47.307 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:13:47.367 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:14:47.427 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:15:47.501 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:16:39.878 UTC [42] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 21:16:39.878 UTC [42] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 21:16:44.899 UTC [43] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 21:16:44.899 UTC [43] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 21:16:49.908 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:16:49.919 UTC [44] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 21:16:49.919 UTC [44] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 21:16:54.939 UTC [45] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 21:16:54.939 UTC [45] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 21:16:59.964 UTC [46] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 21:16:59.964 UTC [46] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 21:18:00.029 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:19:00.059 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:20:00.096 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:21:00.123 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:22:00.172 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:23:00.232 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:24:00.275 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:25:00.336 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:26:00.385 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:27:00.435 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:28:00.451 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:29:00.491 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:30:00.499 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:31:00.594 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:32:00.626 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:33:00.686 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:34:00.739 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:35:00.759 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:36:00.824 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:37:00.885 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:38:00.905 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:39:00.965 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:39:09.116 UTC [47] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 21:39:09.116 UTC [47] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 21:39:14.137 UTC [48] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 21:39:14.137 UTC [48] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 21:39:19.158 UTC [49] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 21:39:19.158 UTC [49] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 21:39:24.185 UTC [50] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 21:39:24.185 UTC [50] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 21:39:29.206 UTC [51] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 21:39:29.206 UTC [51] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 21:40:29.261 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:41:29.321 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:42:29.385 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:43:29.447 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:44:29.507 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:45:15.215 UTC [52] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 21:45:15.215 UTC [52] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 21:45:20.236 UTC [53] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 21:45:20.236 UTC [53] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 21:45:25.257 UTC [54] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 21:45:25.257 UTC [54] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 21:45:30.261 UTC [1] LOG:  could not open file "postmaster.pid": Permission denied; continuing anyway
+db-1  | 2026-01-04 21:45:30.273 UTC [55] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 21:45:30.273 UTC [55] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 21:45:35.294 UTC [56] FATAL:  password authentication failed for user "user"
+db-1  | 2026-01-04 21:45:35.294 UTC [56] DETAIL:  Role "user" does not exist.
+db-1  |         Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+db-1  | 2026-01-04 21:45:35.958 UTC [63] FATAL:  role "user" does not exist
+db-1  | 2026-01-04 21:46:19.976 UTC [70] FATAL:  role "postgres" does not exist
+root@smart-pos-uat:~/smart-pos#

@@ -1,0 +1,39 @@
+This is a very stubborn issue, but I believe I have now solved it.
+
+### Problem Diagnosis
+
+The `docker compose config` output confirms that the `VITE_API_BASE_URL` is being correctly passed to the build process. However, the frontend is still not using it. This strongly suggests that there is a caching issue *within* the build process itself (`npm` or `vite` might be caching old values).
+
+### Solution
+
+I have modified `frontend/Dockerfile` to force a "clean" build by:
+
+1.  Adding `npm cache clean --force` to clear `npm`'s cache.
+2.  Adding the `--force` flag to the `vite build` command to make it re-optimize dependencies.
+
+### Next Steps
+
+You need to get this new `Dockerfile` to your live server and rebuild.
+
+1.  **On your local machine (this machine):** Commit and push the changes:
+    ```bash
+    git add frontend/Dockerfile
+    git commit -m "fix: Force-clean build to fix VITE_API_BASE_URL caching"
+    git push
+    ```
+
+2.  **On your live server:**
+    a. Pull the latest changes:
+    ```bash
+    git pull
+    ```
+    b. Rebuild the containers without any caching:
+    ```bash
+    docker compose build --no-cache
+    ```
+    c. Restart the services:
+    ```bash
+    docker compose up -d
+    ```
+
+After these steps, please clear your browser cache and check the login functionality again.

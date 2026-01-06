@@ -10,8 +10,8 @@ import models, database
 
 # 1. SECURITY CONFIGURATION
 SECRET_KEY = os.getenv("SECRET_KEY", "super_secret_master_key_change_me_in_production")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 12 
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")) 
 
 # 2. PASSWORD HASHER
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
