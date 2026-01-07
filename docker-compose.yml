@@ -7,7 +7,7 @@ services:
     restart: always
     environment: {}
     volumes:
-      - ./pos_data:/var/lib/postgresql/data
+      - pos_db_data:/var/lib/postgresql/data
     env_file:
       - ./.env
 
@@ -35,3 +35,6 @@ services:
       - "5173:5173"
     env_file:
       - ./.env
+
+volumes:
+  pos_db_data:
