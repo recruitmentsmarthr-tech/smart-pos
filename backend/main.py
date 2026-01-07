@@ -32,6 +32,10 @@ def on_startup():
     init_db.init_db()
 
 # 4. REGISTER THE ROUTERS
+@app.get("/")
+def read_root():
+    return {"message": "Smart POS API is running!"}
+
 app.include_router(auth_routes.router)
 app.include_router(stock.router)
 app.include_router(categories.router)
